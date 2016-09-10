@@ -4,6 +4,19 @@
 #include <algorithm>
 using namespace std;
 
+void maxFunction(int b, int c){
+        b = rand() % 6 + 1;
+        c = rand() % 6 + 1;
+        cout << "You rolled ( " << b << ", " << c << " ) --> ";
+        if (max(b, c) == b){
+            c = rand() % 6 + 1;
+            cout << "You rolled ( " << c << " ) --> ";
+        }
+        else if (max(b, c) == c){
+            b = rand() % 6 + 1;
+            cout << "You rolled ( " << b << " ) --> ";
+        }
+}
 int main() {
     int playerMoney = 100, machineMoney = 100;
     int playerDice1, playerDice2, playerDice3, machineDice1, machineDice2, machineDice3;
@@ -27,47 +40,17 @@ int main() {
             cout << "BIG FISH!";
         }
         else if (max(max(playerDice1, playerDice2), playerDice3) == playerDice1){
-            playerDice2 = rand() % 6 + 1;
-            playerDice3 = rand() % 6 + 1;
-            cout << "You rolled ( " << playerDice2 << ", " << playerDice3 << " ) --> ";
-            if (max(playerDice2, playerDice3) == playerDice2){
-                playerDice3 = rand() % 6 + 1;
-                cout << "You rolled ( " << playerDice3 << " ) --> ";
-            }
-            else if (max(playerDice2, playerDice3) == playerDice3){
-                playerDice2 = rand() % 6 + 1;
-                cout << "You rolled ( " << playerDice2 << " ) --> ";
-            }
+            maxFunction(playerDice2, playerDice3);                                                                      //Calls function to test max
             playerTotalScore = playerDice1 + playerDice2 + playerDice3;
             cout << "You scored " << playerTotalScore << ".";
         }
         else if (max(max(playerDice1, playerDice2), playerDice3) == playerDice2){
-            playerDice1 = rand() % 6 + 1;
-            playerDice3 = rand() % 6 + 1;
-            cout << "You rolled ( " << playerDice1 << ", " << playerDice3 << " ) --> ";
-            if (max(playerDice1, playerDice3) == playerDice1){
-                playerDice3 = rand() % 6 + 1;
-                cout << "You rolled ( " << playerDice3 << " ) --> ";
-            }
-            else if (max(playerDice1, playerDice3) == playerDice3){
-                playerDice1 = rand() % 6 + 1;
-                cout << "You rolled ( " << playerDice1 << " ) --> ";
-            }
+            maxFunction(playerDice1, playerDice3);                                                                      //Calls function to test max
             playerTotalScore = playerDice1 + playerDice2 + playerDice3;
             cout << "You scored " << playerTotalScore << ".";
         }
         else if (max(max(playerDice1, playerDice2), playerDice3) == playerDice3){
-            playerDice1 = rand() % 6 + 1;
-            playerDice2 = rand() % 6 + 1;
-            cout << "You rolled ( " << playerDice1 << ", " << playerDice2 << " ) --> ";
-            if (max(playerDice1, playerDice2) == playerDice1){
-                playerDice2 = rand() % 6 + 1;
-                cout << "You rolled ( " << playerDice2 << " ) --> ";
-            }
-            else if (max(playerDice1, playerDice2) == playerDice2){
-                playerDice1 = rand() % 6 + 1;
-                cout << "You rolled ( " << playerDice1 << " ) --> ";
-            }
+            maxFunction(playerDice2, playerDice1);                                                                      //Calls function to test max
             playerTotalScore = playerDice1 + playerDice2 + playerDice3;
             cout << "You scored " << playerTotalScore << ".";
         }
@@ -77,51 +60,20 @@ int main() {
             cout << "BIG FISH!";
         }
         else if (max(max(machineDice1, machineDice2), machineDice3) == machineDice1){
-            machineDice2 = rand() % 6 + 1;
-            machineDice3 = rand() % 6 + 1;
-            cout << "Machine rolled ( " << machineDice2 << ", " << machineDice3 << " ) --> ";
-            if (max(machineDice2, machineDice3) == machineDice2){
-                machineDice3 = rand() % 6 + 1;
-                cout << "Machine rolled ( " << machineDice3 << " ) --> ";
-            }
-            else if (max(machineDice2, machineDice3) == machineDice3){
-                machineDice2 = rand() % 6 + 1;
-                cout << "Machine rolled ( " << machineDice2 << " ) --> ";
-            }
+            maxFunction(machineDice2, machineDice3);
             machineTotalScore = machineDice1 + machineDice2 + machineDice3;
             cout << "Machine scored " << machineTotalScore << ".";
         }
         else if (max(max(machineDice1, machineDice2), machineDice3) == machineDice2){
-            machineDice1 = rand() % 6 + 1;
-            machineDice3 = rand() % 6 + 1;
-            cout << "Machine rolled ( " << machineDice1 << ", " << machineDice3 << " ) --> ";
-            if (max(machineDice1, machineDice3) == machineDice1){
-                machineDice3 = rand() % 6 + 1;
-                cout << "Machine rolled ( " << machineDice3 << " ) --> ";
-            }
-            else if (max(machineDice1, machineDice3) == machineDice3){
-                machineDice1 = rand() % 6 + 1;
-                cout << "Machine rolled ( " << machineDice1 << " ) --> ";
-            }
+            maxFunction(machineDice1, machineDice3);
             machineTotalScore = machineDice1 + machineDice2 + machineDice3;
             cout << "Machine scored " << machineTotalScore << ".";
         }
         else if (max(max(machineDice1, machineDice2), machineDice3) == machineDice3){
-            machineDice1 = rand() % 6 + 1;
-            machineDice2 = rand() % 6 + 1;
-            cout << "Machine rolled ( " << machineDice1 << ", " << machineDice2 << " ) --> ";
-            if (max(machineDice1, machineDice2) == machineDice1){
-                machineDice2 = rand() % 6 + 1;
-                cout << "Machine rolled ( " << machineDice2 << " ) --> ";
-            }
-            else if (max(machineDice1, machineDice2) == machineDice2){
-                machineDice1 = rand() % 6 + 1;
-                cout << "Machine rolled ( " << machineDice1 << " ) --> ";
-            }
+            maxFunction(machineDice2, machineDice1);
             machineTotalScore = machineDice1 + machineDice2 + machineDice3;
             cout << "Machine scored " << machineTotalScore << ".";
-        }
-        else cout << "Oops, something went wrong.";
+        } else cout << "Oops, something went wrong.";
         //Win or Lose
         if (playerDice1 == playerDice2 && playerDice2 == playerDice3){
             playerMoney += playerBet * 50;
@@ -146,8 +98,5 @@ int main() {
     }
     else if (machineMoney <= 0){
         cout << "YOU WON THE GAME! :) \n";
-    }
-    else if (playerMoney <= 0 && machineMoney <= 0){
-        cout << "IT'S A TIE!";
     } else cout << "Something went wrong!";
 }
