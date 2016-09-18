@@ -33,9 +33,9 @@ int main() {
                 }
             }
         }
-        auto start = chrono::steady_clock::now();                                                                       //Starts timer when input begins
+        auto startTimer = chrono::steady_clock::now();                                                                       //Starts timer when input begins
         cout << ": "; cin >> playerInput;
-        auto end = chrono::steady_clock::now();                                                                         //Ends timer after input finishes
+        auto endTimer = chrono::steady_clock::now();                                                                         //Ends timer after input finishes
 
         for (int b = 0; b < 7; ++b){                                                                                    //Checks if input matches random string
             if (playerInput[b] == randomString[b]){
@@ -46,9 +46,8 @@ int main() {
                 totalOffset += abs(offSet);
             }
         }
-
-        auto diff = end - start;
-        auto timeElapsed = chrono::duration_cast<chrono::milliseconds>(diff).count();
+        auto diffTimer = endTimer - startTimer;
+        auto timeElapsed = chrono::duration_cast<chrono::milliseconds>(diffTimer).count();
         cout << timeElapsed << " milliseconds, ";                                                                       //Calculates and displays time elapsed
         if (timeElapsed <= 7000){
             cout << "you made it within the interval of 7000...";
