@@ -53,7 +53,6 @@ int main() {
                 totalOffset += abs(offSet);
             }
         }
-        cout << count;
 
         auto diff = end - start;
         long timeElapsed = chrono::duration_cast<ms>(diff).count();
