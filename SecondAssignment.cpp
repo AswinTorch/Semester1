@@ -73,7 +73,7 @@ int main() {
             cout << "your total penalty is " << abs(totalPenalty) << "...";
         } else //No offset
 
-        playerPoints;
+        playerPoints;                                                                                                   //Loop doesn't break unless this is here
         if (playerPoints <= 0 || playerPoints >= 5000) break;                                                           //Case that breaks out of loop
     }
     cout << "\n=================================================";
