@@ -2,14 +2,14 @@
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
-using namespace std;
+#include <cstring>
+using namespace std; using namespace chrono;
 
 int randInt(int a, int b) {return (rand() % b + a);}
-
 int main() {
     srand(time(0));
     int playerPoints = 1000;
-    string randomString, playerInput;
+    string randomString, stringInput;
 
     while (true) {                                                                                                      //Main loop
         int count = 0, totalOffset = 0, offSet, totalPenalty = 0;
@@ -18,36 +18,44 @@ int main() {
             if ((rand() % 10 + 1) <= 2) {                                                                               //Numbers or Non alphanumeric chars 50% chance
                 if ((rand() % 2 + 1) == 1) {
                     randomString[a] = randInt(48, 10);                                                                  //Numbers from 0-9
-                    cout << randomString[a];
+                    cout << "[0-9]";
                 } else {
                     randomString[a] = randInt(33, 15);                                                                  //Non-alphanumeric characters
-                    cout << randomString[a];
+                    cout << "[%-&]";
                 }
             } else {                                                                                                    //Upper or lower case letters 50% chance
                 if ((rand() % 2 + 1) == 1) {
                     randomString[a] = randInt(65, 26);                                                                  //Capital letters
                     cout << randomString[a];
                 } else {
-                    randomString[a] = randInt(97, 26);                                                                  //Lowercase letters
+                    randomString[a] = randInt(97, 26);                                                                  //Lower case letters
                     cout << randomString[a];
                 }
             }
         }
-        auto startTimer = chrono::steady_clock::now();                                                                       //Starts timer when input begins
-        cout << ": "; cin >> playerInput;
-        auto endTimer = chrono::steady_clock::now();                                                                         //Ends timer after input finishes
+        auto startTimer = steady_clock::now();                                                                          //Starts timer when input begins
+        cout << ": "; cin >> stringInput;
+        auto endTimer = steady_clock::now();                                                                            //Ends timer after input finishes
 
         for (int b = 0; b < 7; ++b){                                                                                    //Checks if input matches random string
-            if (playerInput[b] == randomString[b]){
+            if (stringInput[b] == randomString[b]){
                 count++;
             }
             else {
-                offSet = playerInput[b] - randomString[b];                                                              //Calculates total offset
+                offSet = stringInput[b] - randomString[b];                                                              //Calculates total offset
                 totalOffset += abs(offSet);
             }
         }
+
+        if (strcmp(randomString, stringInput)){
+            
+        }
+
+
+
+
         auto diffTimer = endTimer - startTimer;
-        auto timeElapsed = chrono::duration_cast<chrono::milliseconds>(diffTimer).count();
+        auto timeElapsed = duration_cast<milliseconds>(diffTimer).count();
         cout << timeElapsed << " milliseconds, ";                                                                       //Calculates and displays time elapsed
         if (timeElapsed <= 7000){
             cout << "you made it within the interval of 7000...";
@@ -73,7 +81,7 @@ int main() {
             cout << "your total penalty is " << abs(totalPenalty) << "...";
         } else //No offset
 
-        playerPoints;                                                                                                   //Loop doesn't break unless this is here
+            playerPoints;                                                                                               //Loop doesn't break unless this is here
         if (playerPoints <= 0 || playerPoints >= 5000) break;                                                           //Case that breaks out of loop
     }
     cout << "\n=================================================";
