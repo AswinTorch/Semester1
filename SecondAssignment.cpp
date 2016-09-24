@@ -19,18 +19,15 @@ int main(){
                 if (rand() % 2 + 1 == 1){
                     randomString += 48;
                     cout << "[0-9]";
-                }
-                else {
+                } else {
                     randomString += '*';
                     cout << "[%-&]";
                 }
-            }
-            else {
+            } else {
                 if (rand() % 2 + 1 == 1){
                     randomString += randInt('A', 26);
                     cout << randomString[a];
-                }
-                else {
+                } else {
                     randomString += randInt('a', 26);
                     cout << randomString[a];
                 }
@@ -42,11 +39,8 @@ int main(){
         auto endTimer = steady_clock::now();
         auto timeElapsed = duration_cast<milliseconds>(endTimer - startTimer).count();
 
-        if (inputString.length() < 7){
-            inputString += ' ';
-        } else if (inputString.length() > 7){
-            randomString += ' ';
-        }
+        while (inputString.length() < randomString.length()) inputString += ' ';
+        while (randomString.length() < inputString.length()) randomString += ' ';
 
         for (int a = 0; a < randomString.length(); ++a) {
             if (randomString[a] == inputString[a]){
@@ -57,13 +51,12 @@ int main(){
                 if (isdigit(randomString[a]) && isdigit(inputString[a])){
                     stringsMatch = true;
                     totalOffset -= abs(randomString[a] - inputString[a]);
-                }else if (!isalnum(randomString[a]) && isalnum(inputString[a])){
-                    stringsMatch = true;
+                }else if (!(isalnum(randomString[a])) && !(isalnum(inputString[a])) && !(isspace(inputString[a]))){
+                    stringsMatch = true;                    //It thinks space isnt alphanum so it accepts it.
                     totalOffset -= abs(randomString[a] - inputString[a]);
                 }
             } else cout << "Error 1";
         }
-        cout << "\nOffset: " << totalOffset << endl;
         if (timeElapsed <= 7000) cout << timeElapsed << " milliseconds, you made it within the interval of 7000...\n";
         else cout << timeElapsed << " milliseconds, you *failed* it within the interval of 7000...\n";
 
@@ -81,10 +74,8 @@ int main(){
             cout << "String offset is " << totalOffset << ", your total penalty is " << totalPenalty << "...\n";
         } else cout << "Error 2";
 
-
         if (playerPoints <= 0 || playerPoints > 5000) break;
     }
-
     cout << "===============================================";
     cout << "\nPoints: " << playerPoints << endl;
     cout << (playerPoints >= 5000 ? "You won!" : "You lost!");
