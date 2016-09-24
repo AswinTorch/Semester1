@@ -1,98 +1,91 @@
-//Aswin Nair
-//Assignment 2
 #include <iostream>
+#include <chrono>
 #include <cstdlib>
 #include <ctime>
-#include <chrono>
 using namespace std; using namespace chrono;
-
-int randInt(int a, int b) {return (rand() % b + a);}                                                                    //RNG for chars upper case and lower case
-int main() {
+int randInt(int a, int b){return rand() % b + a;}
+int main(){
     srand(time(0));
     int playerPoints = 1000;
 
-    while (true) {                                                                                                      //Main loop
-        int count = 0, totalOffset = 0, totalPenalty = 0;
-        bool inputMatchesString, inputLargerThanSeven;
-        string randomString, stringInput;
+    while (true){
+        string randomString, inputString;
+        int totalOffset = 0, totalPenalty = 0;
+        bool stringsMatch;
 
-        cout << "\nYour current points: " << playerPoints << " , just type -> ";
-        for (int a = 0; a < 7; ++a) {                                                                                   //Loop to assign chars to string randomly
-            if ((rand() % 10 + 1) <= 2) {                                                                               //Numbers or Non alphanumeric chars 50% chance
-                if ((rand() % 2 + 1) == 1) {
-                    randomString += '*';                                                                                //Numbers from 0-9 are displayed
+        cout << "Your current points " << playerPoints << ", just type -> ";
+        for (int a = 0; a < 7; ++a) {
+            if (rand() % 10 + 1 <= 2){
+                if (rand() % 2 + 1 == 1){
+                    randomString += 48;
                     cout << "[0-9]";
-                } else {
-                    randomString += 48;                                                                                 //Non-alnum chars displayed
+                }
+                else {
+                    randomString += '*';
                     cout << "[%-&]";
                 }
-            } else {                                                                                                    //Upper or lower case letters 50% chance
-                if ((rand() % 2 + 1) == 1) {
-                    randomString += randInt('A', 26);                                                                   //Capital letters generated and displayed
+            }
+            else {
+                if (rand() % 2 + 1 == 1){
+                    randomString += randInt('A', 26);
                     cout << randomString[a];
-                } else {
-                    randomString += randInt('a', 26);                                                                   //Lower case letters generated and displayed
+                }
+                else {
+                    randomString += randInt('a', 26);
                     cout << randomString[a];
                 }
             }
-        }                                                                                                               //Steady_clock used to mimic stopwatch time
-        auto startTimer = steady_clock::now();                                                                          //Starts timer when input begins
-        cout << ": "; cin >> stringInput;
-        auto endTimer = steady_clock::now();                                                                            //Ends timer after input finishes
-
-        for (int b = 0; b < 7; ++b){
-            if (isdigit(randomString[b])){
-                count ++;
-            }
-            else if (! isalnum(randomString[b])){
-                count ++;
-            }
-            else if (stringInput[b] == randomString[b]){
-                count++;
-            }
-            else if (isspace(stringInput[b])){
-                totalOffset += abs(randomString[b] - 32);
-            }
-            else if(stringInput[b] != randomString[b]){
-                totalOffset += abs(randomString[b] - stringInput[b]);
-            } else cout << "Something's wrong.";
         }
-        if (stringInput.length() > 7) {
-            cout << "You entered more than 7 characters!";                                                              //Loops back to start if input > 7 chars
-            continue;
+        cout << " :  ";
+        auto startTimer = steady_clock::now();
+        cin >> inputString;
+        auto endTimer = steady_clock::now();
+        auto timeElapsed = duration_cast<milliseconds>(endTimer - startTimer).count();
+
+        if (inputString.length() < 7){
+            inputString += ' ';
+        } else if (inputString.length() > 7){
+            randomString += ' ';
         }
-        if (count == 7) inputMatchesString = true;                                                                      //Just makes code more readable
-        auto diffTimer = endTimer - startTimer;
-        auto timeElapsed = duration_cast<milliseconds>(diffTimer).count();
-        cout << timeElapsed << " milliseconds, ";                                                                       //Calculates and displays time elapsed
-        if (timeElapsed <= 7000){
-            cout << "you made it within the interval of 7000...";
-        } else cout << "you *failed* it within the interval of 7000...";
 
-        if (timeElapsed <= 7000 && inputMatchesString){                                                                 //Adds 500pts if within time and string matches
-            totalPenalty += 500;
-            playerPoints += totalPenalty;
-        } else if (timeElapsed <= 7000 && count < 7){                                                                   //Removes string offset from pts when within time
-            totalPenalty -= totalOffset;
-            playerPoints += totalPenalty;
-        } else if (timeElapsed > 7000 && inputMatchesString){                                                           //Removes time penalty only with no offset
-            totalPenalty -= (timeElapsed - 7000);
-            playerPoints += totalPenalty;
-        } else if (timeElapsed > 7000 && count < 7){                                                                    //Removes offset pts and time penalty
-            totalPenalty -= (timeElapsed - 7000);
-            totalPenalty -= totalOffset;
-            playerPoints += totalPenalty;
-        } else cout << "Something's wrong.";                                                                            //For testing purposes
+        for (int a = 0; a < randomString.length(); ++a) {
+            if (randomString[a] == inputString[a]){
+                stringsMatch = true;
+            } else if (randomString[a] != inputString[a]){
+                stringsMatch = false;
+                totalOffset += abs(randomString[a] - inputString[a]);
+                if (isdigit(randomString[a]) && isdigit(inputString[a])){
+                    stringsMatch = true;
+                    totalOffset -= abs(randomString[a] - inputString[a]);
+                }else if (!isalnum(randomString[a]) && isalnum(inputString[a])){
+                    stringsMatch = true;
+                    totalOffset -= abs(randomString[a] - inputString[a]);
+                }
+            } else cout << "Error 1";
+        }
+        cout << "\nOffset: " << totalOffset << endl;
+        if (timeElapsed <= 7000) cout << timeElapsed << " milliseconds, you made it within the interval of 7000...\n";
+        else cout << timeElapsed << " milliseconds, you *failed* it within the interval of 7000...\n";
 
-        if (count < 7){
-            cout << "\nString offset is " << totalOffset << ", ";                                                       //Displays total offset and penalty
-            cout << "your total penalty is " << abs(totalPenalty) << "...";
-        } else {/*No offset, so nothing happens*/}
+        if (stringsMatch && timeElapsed <= 7000){
+            playerPoints += 500;
+        } else if (stringsMatch && timeElapsed > 7000){
+            playerPoints -= (timeElapsed - 7000);
+        } else if (!stringsMatch && timeElapsed < 7000){
+            playerPoints -= totalOffset;
+            cout << "String offset is " << totalOffset << ", your total penalty is " << totalOffset << "...\n";
+        } else if (!stringsMatch && timeElapsed > 7000){
+            totalPenalty += (totalOffset * 2);
+            totalPenalty += abs(timeElapsed - 7000);
+            playerPoints -= totalPenalty;
+            cout << "String offset is " << totalOffset << ", your total penalty is " << totalPenalty << "...\n";
+        } else cout << "Error 2";
 
-        playerPoints;                                                                                                   //Loop doesn't break unless this is here
-        if (playerPoints <= 0 || playerPoints >= 5000) break;                                                           //Case that breaks out of loop
+
+        if (playerPoints <= 0 || playerPoints > 5000) break;
     }
-    cout << "\n=================================================";
-    cout << "\nYour points: " << playerPoints << endl;
-    cout << (playerPoints >= 5000 ? "You won!" : "You lost!");                                                          //Win or Lose
+
+    cout << "===============================================";
+    cout << "\nPoints: " << playerPoints << endl;
+    cout << (playerPoints >= 5000 ? "You won!" : "You lost!");
 }
