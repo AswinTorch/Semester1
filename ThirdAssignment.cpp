@@ -91,10 +91,13 @@ int main() {
                 sort(inputNames.begin(), inputNames.end());                                                             //Sorts for conditions to work
                 sort(challengeSet.begin(), challengeSet.end());
                 if (inputNames.size() == challengeSet.size()) break;
-                if (inputNames.size() < challengeSet.size() || inputNames.size() > challengeSet.size()){
+                else if (inputNames.size() < challengeSet.size() || inputNames.size() > challengeSet.size()){
                     cout << "Your number of input is incorrect. Enter again: ";                                         //Input check
                     getline(cin, input);
-                    if (input == "quit") cout << "\nBye..."; return 0;                                                  //Quits program if quit is entered in input check
+                    if (input == "quit") {
+                        cout << "\nBye...";
+                        return 0;                                                                                       //Quits program if quit is entered in input check
+                    }
                 }
             }
         }
