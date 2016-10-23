@@ -1,60 +1,117 @@
+//Aswin Nair
+//Assignment 4: My Ship Sails Game
 #include <iostream>
 #include <cstdlib>
+#include <ctime>
 #include <vector>
 #include <algorithm>
 using namespace std;
 
+vector<string> letters = {"(a) ", "(b) ", "(c) ", "(d) ", "(e) ", "(f) ", "(g) "};
+
 class Card {
-    char m_char; //'S', 'C', 'D' 'H'
-    int m_num; //Values
 public:
-    Card(const char suit = 'S', const int number = 0) : m_char (suit), m_num (number){ }
-    friend ostream& operator << (ostream&, const Card&);
+    char m_suit; //'S', 'C', 'D' 'H'
+    int m_num; //Values
+    Card(const char suit = 'S', const int number = 0) : m_suit(suit), m_num(number) {}
+    friend ostream &operator<<(ostream &, const Card &);
 };
 
-ostream& operator << (ostream& o, const Card& c){
-    o << c.m_char;
-    switch (c.m_num){
-        case 1: o << 'A'; break;
-        case 11: o << 'J'; break;
-        case 12: o << 'Q'; break;
-        case 13: o << 'K'; break;
-        default: o << c.m_num;
+ostream &operator<<(ostream &o, const Card &c) {
+    o << c.m_suit;
+    switch (c.m_num) {
+        case 1:
+            o << 'A';
+            break;
+        case 11:
+            o << 'J';
+            break;
+        case 12:
+            o << 'Q';
+            break;
+        case 13:
+            o << 'K';
+            break;
+        default:
+            o << c.m_num;
     }
     return o;
 }
 
 class Player {
-    string m_name;
-    vector <Card> m_deck;
+    int m_name;
+    vector<Card> m_hand;
 public:
-    Player (const string& n = "") : m_name (n) { m_deck.reserve(5); }
-    void push_back(const Card& c){ m_deck.push_back(c); }
-    friend ostream& operator << (ostream&, const Player& p);
+    Player(const int &n) : m_name(n) { m_hand.reserve(7); }
+    void push_back(const Card &c) { m_hand.push_back(c); }
+    Card removeHuman(int element) {
+        Card passedCard = m_hand[element];
+        swap(m_hand[element], m_hand[m_hand.size() - 1]);
+        m_hand.pop_back();
+        return passedCard;
+    }
+    Card removeBot (){
+        //Card to be passed is whichever with the least suit occurrence
+        Card passedCard; vector<int> suitCounter(4);
+        for (int a = 0; a < m_hand.size(); ++a) {
+            if (m_hand[a].m_suit == 'S') ++suitCounter[0];
+            else if (m_hand[a].m_suit == 'C') ++suitCounter[1];
+            else if (m_hand[a].m_suit == 'D') ++suitCounter[2];
+            else if (m_hand[a].m_suit == 'H') ++suitCounter[3];
+        }
+        int minimum = 10; char suit = 10;
+        for (int a = 0; a < suitCounter.size(); ++a) {
+            if (suitCounter[a] != 0 && suitCounter[a] < minimum){
+                minimum = suitCounter[a];
+                suit = a;
+            }
+        }
+        switch (suit){
+            case 0: suit = 'S'; break;
+            case 1: suit = 'C'; break;
+            case 2: suit = 'D'; break;
+            case 3: suit = 'H'; break;
+            default: cout << "Error 1" << endl; break;
+        }
+
+        for (int a = 0; a < m_hand.size(); ++a) {
+            if (m_hand[a].m_suit == suit){
+                passedCard = m_hand[a];
+                swap(m_hand[a], m_hand[m_hand.size() - 1]);
+                m_hand.pop_back(); break;
+            }
+        }
+
+        suitCounter.clear();
+        return passedCard;
+    }
+    friend ostream &operator<<(ostream &, const Player &p);
+
 };
-ostream& operator << (ostream& o, const Player& p){
-    o << "Player " << p.m_name << " has ";
-    for (int a = 0; a < p.m_deck.size(); ++a) {
-        o << p.m_deck[a] << " ";
+
+ostream &operator<<(ostream &o, const Player &p) {
+    for (int a = 0; a < p.m_hand.size(); ++a) {
+        o << letters[a] << p.m_hand[a] << " ";
     }
     return o;
 }
 
-int main (){
-    vector <Card> deck; deck.reserve(52);
-    for (int a = 1; a <= 13; ++a) { deck.push_back(Card ('S', a)); }
-    for (int a = 1; a <= 13; ++a) { deck.push_back(Card ('D', a)); }
-    for (int a = 1; a <= 13; ++a) { deck.push_back(Card ('H', a)); }
-    for (int a = 1; a <= 13; ++a) { deck.push_back(Card ('C', a)); }
+int main() {
+    srand(time(0)); vector<Card> deck; deck.reserve(52); int count = 0;
+
+    //Assigning suits to values
+    for (int a = 1; a <= 13; ++a) { deck.push_back(Card('S', a)); }
+    for (int a = 1; a <= 13; ++a) { deck.push_back(Card('D', a)); }
+    for (int a = 1; a <= 13; ++a) { deck.push_back(Card('H', a)); }
+    for (int a = 1; a <= 13; ++a) { deck.push_back(Card('C', a)); }
+    //Shuffling deck
     random_shuffle(deck.begin(), deck.end());
 
-    vector <Player> players;
-    players.push_back(Player("0"));
-    players.push_back(Player("1"));
-    players.push_back(Player("2"));
-    players.push_back(Player("3"));
-    players.push_back(Player("4"));
+    //Naming players 0-4
+    vector<Player> players;
+    for (int a = 0; a < 5; ++a) { players.push_back(Player(a)); }
 
+    //Giving players 7 cards each
     for (int a = 0; a < players.size(); ++a) {
         for (int b = 0; b < 7; ++b) {
             Card c = deck.back();
@@ -63,8 +120,45 @@ int main (){
         }
     }
 
-    for (int a = 0; a < players.size(); ++a) {
-        cout << players[a] << endl;
+    while (true) {
+        char input;
+        //Show player 0 hand
+        cout << players[0] << endl;
+        while (true) {
+            cout << "Which one to replace? ";
+            //Asks for input
+            cin >> input;
+            //Cheating to show other player cards
+            if (input == '?') {
+                for (int a = 1; a < players.size(); ++a) {
+                    cout << "Player " << a << " " << players[a] << endl;
+                } //Error Check
+            } else if (input == 'a' || input == 'b' || input == 'c' || input == 'd' || input == 'e' || input == 'f' || input == 'g') break;
+            else cout << "Wrong input! " ;
+        }
+
+        //Game Process
+        //Passes card and removes that card from hand
+        Card passedCard = players[0].removeHuman(input - 'a');
+
+        for (int a = 1; a < players.size(); ++a) {
+            players[a].push_back(passedCard);
+            passedCard = players[a].removeBot();
+        }
+        players[0].push_back(passedCard);
+
+
+
+        //Temporary for testing purposes
+        ++count;
+        if (count == 3) break;
     }
 
+    cout << "My Ship Sails!  --- " << endl; //Shows who won
+    cout << "\n[ Final Card Distributions ]" << endl;
+    for (int a = 0; a < players.size(); ++a) { //Prints final cards for all players and ends game.
+        cout << "Player " << a << " " << players[a] << endl;
+    }
+
+    vector <string> test = {"1", "2", "3"};
 }
