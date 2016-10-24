@@ -138,10 +138,10 @@ int main() {
         }
         if (winners.size() > 0) break;
         else {
+            cout << players[0] << "\n" << endl;
             while (true) {
                 //Show player 0 hand
-                cout << players[0] << endl;
-                cout << "\nWhich one to replace? ";
+                cout << "Which one to replace? ";
                 //Asks for input
                 cin >> input;
                 cout << "\n";
