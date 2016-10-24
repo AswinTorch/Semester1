@@ -140,10 +140,11 @@ int main() {
         //Game Process
         //Passes card and removes that card from hand
         Card passedCard = players[0].removeHuman(input - 'a');
-
+        cout << "Hint: Player 0 passed " << passedCard << " to Player 1" << endl;
         for (int a = 1; a < players.size(); ++a) {
             players[a].push_back(passedCard);
             passedCard = players[a].removeBot();
+            cout << "Hint: Player " << a << " passed " << passedCard << " to Player << a+1 << endl;
         }
         players[0].push_back(passedCard);
 
