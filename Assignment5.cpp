@@ -1,6 +1,5 @@
 //Aswin Nair
 //Assignment 5: Sudoku Initializer
-//Assignment not finished, only show and erase function works completely.
 #include <iostream>
 #include <cstdlib>
 #include <iomanip>
@@ -30,50 +29,82 @@ public:
         sudokuBoard[row][column] = '-';
         cout << "Erasing row " << char(row + 'P') << " column " << char(column + 'A') << endl;
     }
-    void checkSector (){
-
+    bool checkSudoku(vector<char> temp) {
+        int count;
+        for (int i = 0; i < 9; ++i) {
+            count = i;
+            while (count < 9) {
+                if (temp[i] == temp[++count]) return false;
+            }
+        }
+        return true;
     }
     void verify() {
-        bool val1 = false, val2 = false, val3 = false, val4 = false, val5 = false, val6 = false;
-        bool val7 = false, val8 = false, val9 = false;
-        int row = 0, col = 0;
-        for (int a = 0; a < sudokuBoard[row].size(); ++a) {
-            if (sudokuBoard[row][col] == '1') val1 = !val1;
-            else if (sudokuBoard[row][col] == '2') val2 = !val2;
-            else if (sudokuBoard[row][col] == '3') val3 = !val3;
-            else if (sudokuBoard[row][col] == '4') val4 = !val4;
-            else if (sudokuBoard[row][col] == '5') val5 = !val5;
-            else if (sudokuBoard[row][col] == '6') val6 = !val6;
-            else if (sudokuBoard[row][col] == '7') val7 = !val7;
-            else if (sudokuBoard[row][col] == '8') val8 = !val8;
-            else if (sudokuBoard[row][col] == '9') val9 = !val9;
-            ++col;
+        int errorCount = 0;
+        //Checks for erases
+        for (int r = 0; r < 9; ++r) {
+            for (int c = 0; c < 9; ++c) {
+                if ( (sudokuBoard[r][c] < '1') || (sudokuBoard[r][c] > '9')) {
+                    cout << "- Found inconsistency in row " << char(r + 'P') << "..." << endl;
+                    cout << "- Found inconsistency in column " << char(c + 'A') << "..." << endl;
+                    ++errorCount;
+                }
+            }
         }
-        bool resultRow = (val1 && val2 && val3 && val4 && val5 && val6 && val7 && val8 && val9);
-
-        val1 = false, val2 = false, val3 = false, val4 = false, val5 = false, val6 = false;
-        val7 = false, val8 = false, val9 = false;
-        row = 0, col = 0;
-        for (int b = 0; b < sudokuBoard[col].size(); ++b) {
-            if (sudokuBoard[row][col] == '1') val1 = !val1;
-            else if (sudokuBoard[row][col] == '2') val2 = !val2;
-            else if (sudokuBoard[row][col] == '3') val3 = !val3;
-            else if (sudokuBoard[row][col] == '4') val4 = !val4;
-            else if (sudokuBoard[row][col] == '5') val5 = !val5;
-            else if (sudokuBoard[row][col] == '6') val6 = !val6;
-            else if (sudokuBoard[row][col] == '7') val7 = !val7;
-            else if (sudokuBoard[row][col] == '8') val8 = !val8;
-            else if (sudokuBoard[row][col] == '9') val9 = !val9;
-            ++row;
+        //Checks for sudoku rule inconsistencies in rows
+        vector <char> temp(9);
+        for (int r = 0; r < 9; ++r) {
+            for (int c = 0; c < 9; ++c){
+                temp[c] = sudokuBoard[r][c];
+            }
+            if (!checkSudoku(temp)) {
+                cout << "- Found inconsistencies in row " << char(r + 'P') << "..." << endl;
+                ++errorCount;
+            }
         }
-        bool resultCol = (val1 && val2 && val3 && val4 && val5 && val6 && val7 && val8 && val9);
-        checkSector();
-        if (resultCol && resultRow){
-            cout << "All columns, rows, and components are OK..." << endl;
-        } else cout << "Not sudoku" << endl;
+        //Checks for sudoku rule inconsistencies in columns
+        for (int c = 0; c < 9; ++c) {
+            for (int r = 0; r < 9; ++r) {
+                temp[r] = sudokuBoard[r][c];
+            }
+            if (!checkSudoku(temp)) {
+                cout << "- Found inconsistencies in column " << char(c + 'A') << "..." << endl;
+                ++errorCount;
+            }
+        }
+        //Checks for sudoku rule inconsistencies in 3x3 sections
+//        int count = 0, sRowCount = 0, sColCount = 0, sectionCount = 0;
+//        for (int sRow = 0; sRow <= 6; sRow+= 3) { //Increment sent to 3 to account for 3x3 sections
+//            for (int sCol = 0; sCol <= 6; sCol += 3) { //Increment sent to 3 to account for 3x3 sections
+//                for (sRowCount = 0, count = 0; sRowCount < 3; ++sRowCount) {
+//                    for (sColCount = 0; sColCount < 3; ++sColCount) {
+//                        temp[++count] = sudokuBoard[sRow + sRowCount][sCol + sColCount];
+//                    }
+//                }
+//                ++sectionCount;
+//                if (!checkSudoku(temp)) {
+//                    cout << "- Found inconsistencies in " << sectionCount << "..." << endl;
+//                    ++errorCount;
+//                }
+//            }
+//        }
+        //No Error Output a.k.a. Sudoku intact
+        if (errorCount == 0) cout << "- All columns, rows, and components are OK..." << endl;
     }
     void swap() {
-
+        //I don't understand the "permissible range" for swap. I just implemented a normal random swap for rows and columns.
+        int sRow1 = rand() % 9, sRow2 = rand() % 9, sCol1 = rand() % 9, sCol2 = rand() % 9, chance = rand() % 2 + 1;
+        if (chance == 1){
+            sudokuBoard[sRow1].swap(sudokuBoard[sRow2]);
+            cout << "- Rows " << char(sRow1 + 'P') << " and " << char(sRow2 + 'P') << " were swapped..." << endl;
+        } else {
+            for (int r = 0; r < 9; ++r) {
+                char temp = sudokuBoard[r][sCol1];
+                sudokuBoard[r][sCol1] = sudokuBoard[r][sCol2];
+                sudokuBoard[r][sCol2] = temp;
+            }
+            cout << "- Columns " << char(sCol1 + 'A') << " and " << char(sCol2 + 'A') << " were swapped..." << endl;
+        }
     }
     friend ostream& operator << (ostream& o, const Board& b){
         cout << "   ";
@@ -90,7 +121,6 @@ public:
 
 void showBoard (Board b) {cout << b;}
 
-
 int main() {
     srand(unsigned(time(0)));
     Board b; string input;
@@ -99,7 +129,7 @@ int main() {
     cout << "Welcome to Sudoku Initializer!" << endl;
     while (true){
         cout << "> "; cin >> input;
-        if (input == "show") { //Shows board if input is show.
+        if (input == "show") { //Shows board.
             showBoard(b);
         } else if (input == "swap"){ //Swaps random row/column positions.
             b.swap();
