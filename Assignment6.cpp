@@ -8,15 +8,18 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <vector>
 using namespace Graph_lib;
 using namespace std;
 
 int main() {
 	srand(unsigned(time(0)));
 	int iterations, randomColor = rand() % 255, radius = 0, numberOfCircles;
+	int outerRadius = 200;
+	vector <Graph_lib::Circle*> circles;
 	//Process
 	while (true){
-		cout << "Enter number of rings to generate: ";
+		cout << "Enter number of generations: ";
 		cin >> iterations;
 		Point pointl(0,0);
 		Simple_window window(pointl,500,500,"Assignment #6: Circle Art");
@@ -28,22 +31,25 @@ int main() {
 
 		//Ring generation based on user input
 		for (int a = 0; a < iterations; ++a){
-			numberOfCircles = rand() % 10 + 2;
-		    for (int a = 0; a < numberOfCircles; ++a){
+			numberOfCircles = rand() % 50 + 2; //Set from 2-50 to avoid no generations
+		    for (int b = 0; b < numberOfCircles; ++b){
 		    	randomColor = rand() % 255;
 		    	/*Calculation for radius of inner circle based on radius of outer (200) and
 		    	  number of circles in one iteration (random 2-10 chosen). */
-		    	radius = 200*sin(M_PI/numberOfCircles)/(1 + sin(M_PI/numberOfCircles));
-
-		    	int theta = (2*M_PI)/numberOfCircles;
-		    	int x = 250 + radius * cos(theta * M_PI / 180);
-		    	int y = 250 + radius * sin(theta * M_PI / 180);
-		    	Circle *circle = new Circle(Point{x,y},radius);
+		    	radius = outerRadius*sin(M_PI/numberOfCircles)/(1 + sin(M_PI/numberOfCircles));
+		    	double theta = (2*M_PI/numberOfCircles)*b;
+		    	//Calculation for position based on radius and center of outer circle.
+		    	//(Formula used from Stack Overflow)
+		    	double outerX = 250 + outerRadius * cos(theta);
+		    	double outerY = 250 + outerRadius * sin(theta);
+		    	double x = outerX - (radius*cos(theta));
+		    	double y = outerY - (radius*sin(theta));
+		    	Circle *circle = new Circle(Point{x, y},radius);
 		    	circle->set_color(Color(randomColor));
 		       	window.attach(*circle);
+		       	circles.push_back(circle);
 		   	}
 		}
-
 
 		//Displays number of whole ring generations (iterations)
 		ostringstream ringNumText;
@@ -52,12 +58,15 @@ int main() {
 		Text text1 {Point{160,480}, ringNumText.str()};
 		text1.set_color(Color::black);
 		window.attach(text1);
-
 		if (iterations < 0) {
 			cout << "Bye..." << endl;
 			break;
 		}
 	    window.wait_for_button();
+
+	    //Detaching the circles for next input
+	    for (int a = 0; a < circles.size(); ++a){
+	    	window.detach(*circles[a]);
+	    }
 	}
 }
-
