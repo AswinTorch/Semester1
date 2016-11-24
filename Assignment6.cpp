@@ -14,15 +14,12 @@ using namespace std;
 
 int main() {
 	srand(unsigned(time(0)));
-	int iterations, randomColor = rand() % 255, radius = 0, numberOfCircles;
-	int outerRadius = 200;
-	vector <Graph_lib::Circle*> circles;
+	int iterations, randomColor = rand() % 255, radius = 0, numberOfCircles, outerRadius = 200;
+	Vector_ref <Circle> circles; //vector_ref used for auto deallocation
 	//Process
 	while (true){
-		cout << "Enter number of generations: ";
-		cin >> iterations;
-		Point pointl(0,0);
-		Simple_window window(pointl,500,500,"Assignment #6: Circle Art");
+		cout << "Enter number of generations: "; cin >> iterations;
+		Point pointl(0,0); Simple_window window(pointl,500,500,"Assignment #6: Circle Art");
 		//Creates the main big circle
 		Circle mainCircle {Point{250,250},200};
 		//Main circle set to black to increase visibility, all inner circles randomized.
@@ -40,10 +37,8 @@ int main() {
 		    	double theta = (2*M_PI/numberOfCircles)*b;
 		    	//Calculation for position based on radius and center of outer circle.
 		    	//(Formula used from Stack Overflow)
-		    	double outerX = 250 + outerRadius * cos(theta);
-		    	double outerY = 250 + outerRadius * sin(theta);
-		    	double x = outerX - (radius*cos(theta));
-		    	double y = outerY - (radius*sin(theta));
+		    	double outerX = 250 + outerRadius * cos(theta), outerY = 250 + outerRadius * sin(theta);
+		    	double x = outerX - (radius*cos(theta)), y = outerY - (radius*sin(theta));
 		    	Circle *circle = new Circle(Point{x, y},radius);
 		    	circle->set_color(Color(randomColor));
 		       	window.attach(*circle);
@@ -55,18 +50,15 @@ int main() {
 		ostringstream ringNumText;
 		if (iterations == 1) ringNumText << "After " << iterations << " ring generation";
 		else ringNumText << "After " << iterations << " ring generations";
-		Text text1 {Point{160,480}, ringNumText.str()};
-		text1.set_color(Color::black);
-		window.attach(text1);
-		if (iterations < 0) {
-			cout << "Bye..." << endl;
-			break;
-		}
+		Text message {Point{160,480}, ringNumText.str()};
+		message.set_color(Color::black);
+		window.attach(message);
+		if (iterations < 0) { cout << "Bye..." << endl; break; }
 	    window.wait_for_button();
 
 	    //Detaching the circles for next input
 	    for (int a = 0; a < circles.size(); ++a){
-	    	window.detach(*circles[a]);
+	    	window.detach(circles[a]);
 	    }
 	}
 }
