@@ -54,7 +54,7 @@ int main() {
 		message.set_color(Color::black);
 		window.attach(message);
 		if (iterations < 0) { cout << "Bye..." << endl; break; }
-	    window.wait_for_button();
+	        window.wait_for_button();
 
 	    //Detaching the circles for next input
 	    for (int a = 0; a < circles.size(); ++a){
