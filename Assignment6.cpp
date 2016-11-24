@@ -56,9 +56,9 @@ int main() {
 		if (iterations < 0) { cout << "Bye..." << endl; break; }
 	        window.wait_for_button();
 
-	    //Detaching the circles for next input
-	    for (int a = 0; a < circles.size(); ++a){
-	    	window.detach(circles[a]);
-	    }
+	    	//Detaching the circles for next input
+	   	 for (int a = 0; a < circles.size(); ++a){
+	    		window.detach(circles[a]);
+	   	 }
 	}
 }
