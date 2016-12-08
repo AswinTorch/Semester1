@@ -18,9 +18,7 @@ struct Lines_window : Graph_lib::Window {
 	    Lines_window(Point xy, int w, int h, const string& title );
 	    //Needle variables
 	    vector <Point*> midpoints, points1, points2;
-	    vector <Line*> needles;
-	    stringstream countText;
-	    Text message {Point{500,500}, countText.str()};
+	    vector <Line*> needles, crossedNeedles;
 	    Lines parallelLines;
 	private:
 	    //Buttons and Menus (Widgets)
@@ -69,6 +67,7 @@ Lines_window::Lines_window(Point xy, int w, int h, const string& title)
         for (int a = 200; a <= 1200; a += 200){
         	parallelLines.add(Point{a,25}, Point{a,675});
         }
+        parallelLines.set_color(Color::blue);
         attach (parallelLines);
 
 }
@@ -90,7 +89,7 @@ void Lines_window::drop() {
 	int x, y; double x1, y1, x2, y2, theta = 0;
 	for(int a = 0; a < dropCount; ++a){
 		theta = (rand()%360) * (M_PI/180);
-		x = rand() % 1200 + 100; y = rand() % 700 + 100;
+		x = rand() % 1200 + 100; y = rand() % 600 + 50;
 		Point* midpoint = new Point(x,y); midpoints.push_back(midpoint);
 		x1 = x + 100*cos(theta); y1 = y + 100*sin(theta);
 		Point* p1 = new Point(x1,y1); points1.push_back(p1);
@@ -103,32 +102,46 @@ void Lines_window::drop() {
 	redraw();
 }
 void Lines_window::count_pressed() {
-	countText << "PI IS EQUAL TO: ";
-	Text message {Point{500,500}, countText.str()};
-	message.set_color(Color::black);
-	attach(message);
+	int dropCount = dropCountInput.get_int(), crossedCount;
+
+	for (int a = 0; a < crossedNeedles.size(); ++a){
+		crossedNeedles[a]->set_color(Color::blue);
+	}
+
+	for (int a = 0; a < dropCount; ++a){
+
+	}
+//	stringstream countText;
+//	countText << "PI IS EQUAL TO: ";
+//	Text message {Point{500,500}, countText.str()};
+//	message.set_color(Color::black);
+//	attach(message);
 	redraw();
-	hide_menu();
 }
 void Lines_window::rotate_pressed() {
-	hide_menu();
+	int dropCount = dropCountInput.get_int();
+	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; }
+	for (int a = 0; a < crossedNeedles.size(); ++a){ detach(*crossedNeedles[a]); delete crossedNeedles[a]; }
+	needles.clear(); crossedNeedles.clear();
+
+	double x1, y1, x2, y2, theta = 0;
+	for (int a = 0; a < dropCount; ++a){
+		theta = (rand() % 360) * (M_PI/180);
+		x1 = midpoints[a]->x + 100*cos(theta), y1 = midpoints[a]->y + 100*sin(theta);
+		x2 = midpoints[a]->x - 100*cos(theta), y2 = midpoints[a]->y - 100*sin(theta);
+		Line* needle = new Line (Point (x1, y1), Point (x2, y2));
+		needles.push_back(needle);
+		attach(*needle);
+	}
+	redraw();
 }
 void Lines_window::unlist_pressed() {
-	hide_menu();
+
 }
 
 int main() {
-	try {
-		srand(unsigned(time(0)));
-		Lines_window mainWindow(Point(100,100),1400,700,"Assignment 7: Buffon's Needle");
-		gui_main(); //Runs the program
-	}
-	catch(exception& e) {
-	    cerr << "exception: " << e.what() << '\n';
-	    return 1;
-	}
-	catch (...) {
-	    cerr << "Some exception\n";
-	    return 2;
-	}
+	srand(unsigned(time(0)));
+	Lines_window mainWindow(Point(0,0),1400,700,"Assignment 7: Buffon's Needle");
+	gui_main(); //Runs the program
+
 }
