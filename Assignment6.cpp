@@ -1,10 +1,12 @@
 //Aswin Nair
-//Assignment 6: Circle Art
+//Assignment 7: Buffon's Needle
 #define _USE_MATH_DEFINES
 #include <iostream>
+#include <sstream>
 #include "Simple_window.h"
 #include "GUI.h"
 #include "Graph.h"
+#include "Window.h"
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
@@ -12,53 +14,154 @@
 using namespace Graph_lib;
 using namespace std;
 
+struct Lines_window : Graph_lib::Window {
+	    Lines_window(Point xy, int w, int h, const string& title );
+	    //Needle variables
+	    vector <Point*> midpoints, points1, points2, parallelPoints1, parallelPoints2;
+	    Graph_lib::Rectangle textBox;
+	    Text piDisplay;
+	    vector <Line*> needles, parallelLines;
+	private:
+	    //Buttons and Menus (Widgets)
+	    Button quitButton, dropButton, menuButton;
+	    In_box dropCountInput;
+	    Menu motionMenu;
+
+	    //Callback functions
+	    static void cb_count(Address, Address);
+	    static void cb_rotate(Address, Address);
+	    static void cb_unlist(Address, Address);
+        static void cb_menu(Address, Address);
+	    static void cb_quit(Address, Address);
+	    static void cb_drop(Address, Address);
+
+	    //Actions invoked by callback functions
+	    void hide_menu() { motionMenu.hide(); menuButton.show(); }
+	    void count_pressed();
+	    void rotate_pressed();
+	    void unlist_pressed();
+	    void menu_pressed() { menuButton.hide(); motionMenu.show(); }
+	    void quit();
+	    void drop();
+	};
+
+Lines_window::Lines_window(Point xy, int w, int h, const string& title)
+    :Window(xy,w,h,title),
+    quitButton(Point(x_max()-70,0), 70, 20, "Quit", cb_quit),
+	dropButton(Point(x_max()-150,0), 70, 20, "Drop", cb_drop),
+	menuButton(Point(x_max()-90,30), 90, 20, "Motion Menu", cb_menu),
+	dropCountInput(Point(x_max()-230,0), 70, 20, "Enter Drop Count:"),
+	motionMenu(Point(x_max()-70,30),70,20,Menu::vertical,"Motion"),
+	textBox (Point{350, 325}, Point{1050, 350}),
+	piDisplay(Point{450, 345}, "")
+{
+		//Attaching menus
+		attach(dropCountInput);
+    	attach(quitButton);
+    	attach(dropButton);
+    	motionMenu.attach(new Button(Point(0,0),0,0,"Count",cb_count));
+    	motionMenu.attach(new Button(Point(0,0),0,0,"Rotate",cb_rotate));
+    	motionMenu.attach(new Button(Point(0,0),0,0,"(Un)List",cb_unlist));
+        attach(motionMenu);
+    	motionMenu.hide();
+    	attach(menuButton);
+
+        //Constant Parallel Lines
+        for (int a = 200; a <= 1200; a += 200){
+        	Point* p1 = new Point(a,25); parallelPoints1.push_back(p1);
+        	Point* p2 = new Point(a,675); parallelPoints2.push_back(p2);
+        	Line* parallelLine = new Line(*p1, *p2);
+        	parallelLines.push_back(parallelLine);
+        }
+
+        for (int a = 0; a < parallelLines.size(); ++a){
+        	parallelLines[a]->set_color(Color::blue);
+        	attach (*parallelLines[a]);
+        }
+
+}
+
+void Lines_window::cb_drop(Address, Address pw) { reference_to<Lines_window>(pw).drop(); }
+void Lines_window::cb_quit(Address, Address pw) { reference_to<Lines_window>(pw).quit(); }
+void Lines_window::cb_count(Address, Address pw) { reference_to<Lines_window>(pw).count_pressed(); }
+void Lines_window::cb_rotate(Address, Address pw) { reference_to<Lines_window>(pw).rotate_pressed(); }
+void Lines_window::cb_unlist(Address, Address pw) { reference_to<Lines_window>(pw).unlist_pressed(); }
+void Lines_window::cb_menu(Address, Address pw) { reference_to<Lines_window>(pw).menu_pressed(); }
+
+//Functions
+void Lines_window::quit() { hide(); }
+void Lines_window::drop() {
+	int dropCount = dropCountInput.get_int();
+	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; }
+	needles.clear(); midpoints.clear(); points1.clear(); points2.clear(); detach(piDisplay); detach(textBox);
+	int x, y; double x1, y1, x2, y2, theta = 0;
+	for(int a = 0; a < dropCount; ++a){
+		theta = (rand()%360) * (M_PI/180);
+		x = rand() % 1200 + 100; y = rand() % 600 + 50;
+		Point* midpoint = new Point(x,y); midpoints.push_back(midpoint);
+		x1 = x + 100*cos(theta); y1 = y + 100*sin(theta);
+		Point* p1 = new Point(x1,y1); points1.push_back(p1);
+		x2 = x - (100 * cos(theta)); y2 = y - (100 * sin(theta));
+	    Point* p2 = new Point (x2,y2); points2.push_back(p2);
+		Line* needle = new Line(Point(x1,y1), Point(x2,y2));
+		needles.push_back(needle);
+		attach(*needles[a]);
+	}
+	redraw();
+}
+void Lines_window::count_pressed() {
+	detach(piDisplay); detach(textBox);
+	int dropCount = dropCountInput.get_int(), crossedCount = 0, mainX;
+	//Calculating the intersecting lines and coloring them red
+	for (int a = 0; a < needles.size(); ++a){
+		for (int b = 0; b < parallelLines.size(); ++b){
+			mainX = parallelPoints1[b]->x;
+			if (points1[a]->x < mainX && points2[a]->x > mainX){
+				needles[a]->set_color(Color::red);
+				++crossedCount;
+			} else if (points2[a]->x < mainX && points1[a]->x > mainX){
+				needles[a]->set_color(Color::red);
+				++crossedCount;
+			}
+		}
+	}
+	//Calculation and display of pi
+	double calculatedPi = double(2 * dropCount)/double(crossedCount);
+	textBox.set_fill_color(Color::white);
+	attach(textBox);
+
+	ostringstream piMessage;
+	piMessage << "Found " << crossedCount << " crossed needles, and estimated pi is " << calculatedPi << "!";
+	piDisplay.set_label(piMessage.str());
+	attach(piDisplay);
+	redraw();
+}
+void Lines_window::rotate_pressed() {
+	int dropCount = dropCountInput.get_int();
+	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; }
+	needles.clear(); points1.clear(); points2.clear(); detach(piDisplay); detach(textBox);
+
+	double x1, y1, x2, y2, theta = 0;
+	for (int a = 0; a < dropCount; ++a){
+		theta = (rand() % 360) * (M_PI/180);
+		x1 = midpoints[a]->x + 100*cos(theta), y1 = midpoints[a]->y + 100*sin(theta);
+		x2 = midpoints[a]->x - 100*cos(theta), y2 = midpoints[a]->y - 100*sin(theta);
+		Point* p1 = new Point(x1,y1); points1.push_back(p1);
+		Point* p2 = new Point (x2,y2); points2.push_back(p2);
+		Line* needle = new Line (Point (x1, y1), Point (x2, y2));
+		needles.push_back(needle);
+		attach(*needles[a]);
+	}
+	redraw();
+}
+void Lines_window::unlist_pressed() {
+	detach(piDisplay); detach(textBox);
+
+	redraw();
+}
+
 int main() {
 	srand(unsigned(time(0)));
-	int iterations, randomColor = rand() % 255, radius = 0, numberOfCircles, outerRadius = 200;
-	Vector_ref <Circle> circles; //vector_ref used for auto deallocation
-	//Process
-	while (true){
-		cout << "Enter number of generations: "; cin >> iterations;
-		Point pointl(0,0); Simple_window window(pointl,500,500,"Assignment #6: Circle Art");
-		//Creates the main big circle
-		Circle mainCircle {Point{250,250},200};
-		//Main circle set to black to increase visibility, all inner circles randomized.
-		mainCircle.set_color(Color::black);
-		window.attach(mainCircle);
-
-		//Ring generation based on user input
-		for (int a = 0; a < iterations; ++a){
-			numberOfCircles = rand() % 50 + 2; //Set from 2-50 to avoid no generations
-		    for (int b = 0; b < numberOfCircles; ++b){
-		    	randomColor = rand() % 255;
-		    	/*Calculation for radius of inner circle based on radius of outer (200) and
-		    	  number of circles in one iteration (random 2-10 chosen). */
-		    	radius = outerRadius*sin(M_PI/numberOfCircles)/(1 + sin(M_PI/numberOfCircles));
-		    	double theta = (2*M_PI/numberOfCircles)*b;
-		    	//Calculation for position based on radius and center of outer circle.
-		    	//(Formula used from Stack Overflow)
-		    	double outerX = 250 + outerRadius * cos(theta), outerY = 250 + outerRadius * sin(theta);
-		    	double x = outerX - (radius*cos(theta)), y = outerY - (radius*sin(theta));
-		    	Circle *circle = new Circle(Point{x, y},radius);
-		    	circle->set_color(Color(randomColor));
-		       	window.attach(*circle);
-		       	circles.push_back(circle);
-		   	}
-		}
-
-		//Displays number of whole ring generations (iterations)
-		ostringstream ringNumText;
-		if (iterations == 1) ringNumText << "After " << iterations << " ring generation";
-		else ringNumText << "After " << iterations << " ring generations";
-		Text message {Point{160,480}, ringNumText.str()};
-		message.set_color(Color::black);
-		window.attach(message);
-		if (iterations < 0) { cout << "Bye..." << endl; break; }
-	        window.wait_for_button();
-
-	    	//Detaching the circles for next input
-	   	 for (int a = 0; a < circles.size(); ++a){
-	    		window.detach(circles[a]);
-	   	 }
-	}
+	Lines_window mainWindow(Point(0,0),1400,700,"Assignment 7: Buffon's Needle");
+	gui_main(); //Runs the program
 }
