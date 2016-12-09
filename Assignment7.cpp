@@ -17,9 +17,9 @@ using namespace std;
 struct Lines_window : Graph_lib::Window {
 	    Lines_window(Point xy, int w, int h, const string& title );
 	    //Needle variables
-	    vector <Point*> midpoints, points1, points2;
-	    vector <Line*> needles, crossedNeedles;
-	    Lines parallelLines;
+	    vector <Point*> midpoints, points1, points2, parallelPoints1, parallelPoints2;
+	    //Graph_lib::Rectangle* textBox;
+	    vector <Line*> needles, parallelLines;
 	private:
 	    //Buttons and Menus (Widgets)
 	    Button quitButton, dropButton, menuButton;
@@ -63,12 +63,18 @@ Lines_window::Lines_window(Point xy, int w, int h, const string& title)
     	motionMenu.hide();
     	attach(menuButton);
 
-    	//Constant Parallel Lines
+        //Constant Parallel Lines
         for (int a = 200; a <= 1200; a += 200){
-        	parallelLines.add(Point{a,25}, Point{a,675});
+        	Point* p1 = new Point(a,25); parallelPoints1.push_back(p1);
+        	Point* p2 = new Point(a,675); parallelPoints2.push_back(p2);
+        	Line* parallelLine = new Line(*p1, *p2);
+        	parallelLines.push_back(parallelLine);
         }
-        parallelLines.set_color(Color::blue);
-        attach (parallelLines);
+
+        for (int a = 0; a < parallelLines.size(); ++a){
+        	parallelLines[a]->set_color(Color::blue);
+        	attach (*parallelLines[a]);
+        }
 
 }
 
@@ -84,8 +90,7 @@ void Lines_window::quit() { hide(); }
 void Lines_window::drop() {
 	int dropCount = dropCountInput.get_int();
 	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; }
-	needles.clear(); midpoints.clear();
-
+	needles.clear(); midpoints.clear(); points1.clear(); points2.clear();
 	int x, y; double x1, y1, x2, y2, theta = 0;
 	for(int a = 0; a < dropCount; ++a){
 		theta = (rand()%360) * (M_PI/180);
@@ -97,32 +102,35 @@ void Lines_window::drop() {
 	    Point* p2 = new Point (x2,y2); points2.push_back(p2);
 		Line* needle = new Line(Point(x1,y1), Point(x2,y2));
 		needles.push_back(needle);
-		attach(*needle);
+		attach(*needles[a]);
 	}
 	redraw();
 }
 void Lines_window::count_pressed() {
-	int dropCount = dropCountInput.get_int(), crossedCount;
-
-	for (int a = 0; a < crossedNeedles.size(); ++a){
-		crossedNeedles[a]->set_color(Color::blue);
+	int dropCount = dropCountInput.get_int(), crossedCount = 0, mainX;
+	//Calculating the intersecting lines and coloring them red
+	for (int a = 0; a < needles.size(); ++a){
+		for (int b = 0; b < parallelLines.size(); ++b){
+			mainX = parallelPoints1[b]->x;
+			if (points1[a]->x < mainX && points2[a]->x > mainX){
+				needles[a]->set_color(Color::red);
+				++crossedCount;
+			} else if (points2[a]->x < mainX && points1[a]->x > mainX){
+				needles[a]->set_color(Color::red);
+				++crossedCount;
+			}
+		}
 	}
 
-	for (int a = 0; a < dropCount; ++a){
-
-	}
-//	stringstream countText;
-//	countText << "PI IS EQUAL TO: ";
-//	Text message {Point{500,500}, countText.str()};
-//	message.set_color(Color::black);
-//	attach(message);
+	//Calculation and display of pi
+	double calculatedPi = double(2 * dropCount)/double(crossedCount);
+	cout << calculatedPi << endl;
 	redraw();
 }
 void Lines_window::rotate_pressed() {
 	int dropCount = dropCountInput.get_int();
 	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; }
-	for (int a = 0; a < crossedNeedles.size(); ++a){ detach(*crossedNeedles[a]); delete crossedNeedles[a]; }
-	needles.clear(); crossedNeedles.clear();
+	needles.clear();
 
 	double x1, y1, x2, y2, theta = 0;
 	for (int a = 0; a < dropCount; ++a){
@@ -131,7 +139,7 @@ void Lines_window::rotate_pressed() {
 		x2 = midpoints[a]->x - 100*cos(theta), y2 = midpoints[a]->y - 100*sin(theta);
 		Line* needle = new Line (Point (x1, y1), Point (x2, y2));
 		needles.push_back(needle);
-		attach(*needle);
+		attach(*needles[a]);
 	}
 	redraw();
 }
@@ -143,5 +151,4 @@ int main() {
 	srand(unsigned(time(0)));
 	Lines_window mainWindow(Point(0,0),1400,700,"Assignment 7: Buffon's Needle");
 	gui_main(); //Runs the program
-
 }
