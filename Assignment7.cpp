@@ -130,13 +130,15 @@ void Lines_window::count_pressed() {
 void Lines_window::rotate_pressed() {
 	int dropCount = dropCountInput.get_int();
 	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; }
-	needles.clear();
+	needles.clear(); points1.clear(); points2.clear();
 
 	double x1, y1, x2, y2, theta = 0;
 	for (int a = 0; a < dropCount; ++a){
 		theta = (rand() % 360) * (M_PI/180);
 		x1 = midpoints[a]->x + 100*cos(theta), y1 = midpoints[a]->y + 100*sin(theta);
 		x2 = midpoints[a]->x - 100*cos(theta), y2 = midpoints[a]->y - 100*sin(theta);
+		Point* p1 = new Point(x1,y1); points1.push_back(p1);
+		Point* p2 = new Point (x2,y2); points2.push_back(p2);
 		Line* needle = new Line (Point (x1, y1), Point (x2, y2));
 		needles.push_back(needle);
 		attach(*needles[a]);
