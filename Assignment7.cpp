@@ -54,7 +54,7 @@ Lines_window::Lines_window(Point xy, int w, int h, const string& title)
 	dropCountInput(Point(x_max()-230,0), 70, 20, "Enter Drop Count:"),
 	motionMenu(Point(x_max()-70,30),70,20,Menu::vertical,"Motion"),
 	textBox (Point{350, 325}, Point{1050, 350}),
-	piDisplay(Point{450, 345}, "")
+	piDisplay(Point{490, 345}, "")
 {
 		//Attaching menus
 		attach(dropCountInput);
@@ -74,12 +74,10 @@ Lines_window::Lines_window(Point xy, int w, int h, const string& title)
         	Line* parallelLine = new Line(*p1, *p2);
         	parallelLines.push_back(parallelLine);
         }
-
         for (int a = 0; a < parallelLines.size(); ++a){
         	parallelLines[a]->set_color(Color::blue);
         	attach (*parallelLines[a]);
         }
-
 }
 
 void Lines_window::cb_drop(Address, Address pw) { reference_to<Lines_window>(pw).drop(); }
@@ -93,8 +91,9 @@ void Lines_window::cb_menu(Address, Address pw) { reference_to<Lines_window>(pw)
 void Lines_window::quit() { hide(); }
 void Lines_window::drop() {
 	int dropCount = dropCountInput.get_int();
-	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; }
-	needles.clear(); midpoints.clear(); points1.clear(); points2.clear(); detach(piDisplay); detach(textBox);
+	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; delete points1[a]; delete points2[a]; delete midpoints[a];}
+	for (int b = 0; b < orderDisplayVector.size(); ++b) {detach(*orderDisplayVector[b]); delete orderDisplayVector[b];}
+	needles.clear(); midpoints.clear(); points1.clear(); points2.clear(); orderDisplayVector.clear(); detach(piDisplay); detach(textBox);
 	int x, y; double x1, y1, x2, y2, theta = 0;
 	for(int a = 0; a < dropCount; ++a){
 		theta = (rand()%360) * (M_PI/180);
@@ -111,7 +110,8 @@ void Lines_window::drop() {
 	redraw();
 }
 void Lines_window::count_pressed() {
-	detach(piDisplay); detach(textBox);
+	for (int a = 0; a < orderDisplayVector.size(); ++a) { detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
+	detach(piDisplay); detach(textBox); orderDisplayVector.clear();
 	int dropCount = dropCountInput.get_int(), crossedCount = 0, mainX;
 	//Calculating the intersecting lines and coloring them red
 	for (int a = 0; a < needles.size(); ++a){
@@ -139,8 +139,9 @@ void Lines_window::count_pressed() {
 }
 void Lines_window::rotate_pressed() {
 	int dropCount = dropCountInput.get_int();
-	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; }
-	needles.clear(); points1.clear(); points2.clear(); detach(piDisplay); detach(textBox);
+	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; delete points1[a]; delete points2[a]; }
+	for (int a = 0; a < orderDisplayVector.size(); ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a];}
+	needles.clear(); points1.clear(); points2.clear(); orderDisplayVector.clear(); detach(piDisplay); detach(textBox);
 
 	double x1, y1, x2, y2, theta = 0;
 	for (int a = 0; a < dropCount; ++a){
@@ -156,19 +157,22 @@ void Lines_window::rotate_pressed() {
 	redraw();
 }
 void Lines_window::unlist_pressed() {
-	int dropCount = dropCountInput.get_int();
-	int dropOrder = 0;
+	for (int a = 0; a < orderDisplayVector.size(); ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
 	detach(piDisplay); detach(textBox);
-	ostringstream orderMessage;
-	for (int a = 0; a < needles.size(); ++a){
-		orderMessage << dropOrder;
-		Text* orderDisplay (points1[a], orderMessage.str());
-		orderDisplayVector.push_back(orderDisplay);
-		attach(orderDisplay[a]);
+	if (orderDisplayVector.size() == 0){
+		for (int a = 0; a < needles.size(); ++a) needles[a]->set_color(Color::black);
+		int dropOrder = 0;
+		for (int a = 0; a < midpoints.size(); ++a){
+			ostringstream orderMessage;
+			orderMessage << a + 1;
+			Text* orderDisplay = new Text (*midpoints[a], orderMessage.str());
+			orderDisplayVector.push_back(orderDisplay);
+			attach(*orderDisplayVector[a]);
+		}
+	} else {
+		orderDisplayVector.clear();
+		for (int a = 0; a < orderDisplayVector.size(); ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
 	}
-
-
-
 	redraw();
 }
 
