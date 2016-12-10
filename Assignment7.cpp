@@ -73,7 +73,7 @@ Lines_window::Lines_window(Point xy, int w, int h, const string& title)
         	Line* parallelLine = new Line(*p1, *p2);
         	parallelLines.push_back(parallelLine);
         }
-        for (int a = 0; a < parallelLines.size(); ++a){
+        for (int a = 0, l = parallelLines.size(); a < l; ++a){
         	parallelLines[a]->set_color(Color::blue);
         	attach (*parallelLines[a]);
         }
@@ -91,11 +91,11 @@ void Lines_window::quit() { hide(); }
 void Lines_window::drop() {
 	//Drops the needles according to user input
 	int dropCount = dropCountInput.get_int();
-	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; delete points1[a]; delete points2[a]; delete midpoints[a];}
-	for (int b = 0; b < orderDisplayVector.size(); ++b) {detach(*orderDisplayVector[b]); delete orderDisplayVector[b];}
+	for (int a = 0, l = needles.size(); a < l; ++a){ detach(*needles[a]); delete needles[a]; delete points1[a]; delete points2[a]; delete midpoints[a];}
+	for (int b = 0, l = orderDisplayVector.size(); b < l; ++b) {detach(*orderDisplayVector[b]); delete orderDisplayVector[b];}
 	needles.clear(); midpoints.clear(); points1.clear(); points2.clear(); orderDisplayVector.clear(); detach(piDisplay); detach(textBox);
 	int x, y; double x1, y1, x2, y2, theta = 0;
-	for(int a = 0; a < dropCount; ++a){
+	for(int a = 0, l = dropCount; a < l; ++a){
 		theta = (rand()%360) * (M_PI/180);
 		x = rand() % 1200 + 100; y = rand() % 600 + 50;
 		Point* midpoint = new Point(x,y); midpoints.push_back(midpoint);
@@ -111,12 +111,12 @@ void Lines_window::drop() {
 }
 void Lines_window::count_pressed() {
 	//Counts and colors the crossed needles red, approximates and displays pi.
-	for (int a = 0; a < orderDisplayVector.size(); ++a) { detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
+	for (int a = 0, l = orderDisplayVector.size(); a < l; ++a) { detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
 	detach(piDisplay); detach(textBox); orderDisplayVector.clear();
 	int dropCount = dropCountInput.get_int(), crossedCount = 0, mainX;
 	//Calculating the intersecting lines and coloring them red
-	for (int a = 0; a < needles.size(); ++a){
-		for (int b = 0; b < parallelLines.size(); ++b){
+	for (int a = 0, l = needles.size(); a < l; ++a){
+		for (int b = 0, l = parallelLines.size(); b < l; ++b){
 			mainX = parallelPoints1[b]->x;
 			if (points1[a]->x < mainX && points2[a]->x > mainX){
 				needles[a]->set_color(Color::red);
@@ -141,12 +141,12 @@ void Lines_window::count_pressed() {
 void Lines_window::rotate_pressed() {
 	//Rotates the needles on a random angle, resets color to black, removes order display
 	int dropCount = dropCountInput.get_int();
-	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; delete points1[a]; delete points2[a]; }
-	for (int a = 0; a < orderDisplayVector.size(); ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a];}
+	for (int a = 0, l = needles.size(); a < l; ++a){ detach(*needles[a]); delete needles[a]; delete points1[a]; delete points2[a]; }
+	for (int a = 0, l = orderDisplayVector.size(); a < l; ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a];}
 	needles.clear(); points1.clear(); points2.clear(); orderDisplayVector.clear(); detach(piDisplay); detach(textBox);
 
 	double x1, y1, x2, y2, theta = 0;
-	for (int a = 0; a < dropCount; ++a){
+	for (int a = 0, l = dropCount; a < l; ++a){
 		theta = (rand() % 360) * (M_PI/180);
 		x1 = midpoints[a]->x + 100*cos(theta), y1 = midpoints[a]->y + 100*sin(theta);
 		x2 = midpoints[a]->x - 100*cos(theta), y2 = midpoints[a]->y - 100*sin(theta);
@@ -160,12 +160,12 @@ void Lines_window::rotate_pressed() {
 }
 void Lines_window::unlist_pressed() {
 	//(Un)Lists the order of the creation of needles next to their midpoints
-	for (int a = 0; a < orderDisplayVector.size(); ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
+	for (int a = 0, l = orderDisplayVector.size(); a < l; ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
 	detach(piDisplay); detach(textBox);
 	if (orderDisplayVector.size() == 0){
-		for (int a = 0; a < needles.size(); ++a) needles[a]->set_color(Color::black);
+		for (int a = 0, l = needles.size(); a < l; ++a) needles[a]->set_color(Color::black);
 		int dropOrder = 0;
-		for (int a = 0; a < midpoints.size(); ++a){
+		for (int a = 0, l = midpoints.size(); a < l; ++a){
 			ostringstream orderMessage;
 			orderMessage << a + 1;
 			Text* orderDisplay = new Text (*midpoints[a], orderMessage.str());
@@ -174,7 +174,7 @@ void Lines_window::unlist_pressed() {
 		}
 	} else {
 		orderDisplayVector.clear();
-		for (int a = 0; a < orderDisplayVector.size(); ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
+		for (int a = 0, l = orderDisplayVector.size(); a < l; ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
 	}
 	redraw();
 }
