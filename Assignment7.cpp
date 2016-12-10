@@ -18,7 +18,9 @@ struct Lines_window : Graph_lib::Window {
 	    Lines_window(Point xy, int w, int h, const string& title );
 	    //Needle variables
 	    vector <Point*> midpoints, points1, points2, parallelPoints1, parallelPoints2;
-	    //Graph_lib::Rectangle* textBox;
+	    vector <Text*> orderDisplayVector;
+	    Graph_lib::Rectangle textBox;
+	    Text piDisplay;
 	    vector <Line*> needles, parallelLines;
 	private:
 	    //Buttons and Menus (Widgets)
@@ -50,7 +52,9 @@ Lines_window::Lines_window(Point xy, int w, int h, const string& title)
 	dropButton(Point(x_max()-150,0), 70, 20, "Drop", cb_drop),
 	menuButton(Point(x_max()-90,30), 90, 20, "Motion Menu", cb_menu),
 	dropCountInput(Point(x_max()-230,0), 70, 20, "Enter Drop Count:"),
-	motionMenu(Point(x_max()-70,30),70,20,Menu::vertical,"Motion")
+	motionMenu(Point(x_max()-70,30),70,20,Menu::vertical,"Motion"),
+	textBox (Point{350, 325}, Point{1050, 350}),
+	piDisplay(Point{450, 345}, "")
 {
 		//Attaching menus
 		attach(dropCountInput);
@@ -90,7 +94,7 @@ void Lines_window::quit() { hide(); }
 void Lines_window::drop() {
 	int dropCount = dropCountInput.get_int();
 	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; }
-	needles.clear(); midpoints.clear(); points1.clear(); points2.clear();
+	needles.clear(); midpoints.clear(); points1.clear(); points2.clear(); detach(piDisplay); detach(textBox);
 	int x, y; double x1, y1, x2, y2, theta = 0;
 	for(int a = 0; a < dropCount; ++a){
 		theta = (rand()%360) * (M_PI/180);
@@ -107,6 +111,7 @@ void Lines_window::drop() {
 	redraw();
 }
 void Lines_window::count_pressed() {
+	detach(piDisplay); detach(textBox);
 	int dropCount = dropCountInput.get_int(), crossedCount = 0, mainX;
 	//Calculating the intersecting lines and coloring them red
 	for (int a = 0; a < needles.size(); ++a){
@@ -121,16 +126,21 @@ void Lines_window::count_pressed() {
 			}
 		}
 	}
-
 	//Calculation and display of pi
 	double calculatedPi = double(2 * dropCount)/double(crossedCount);
-	cout << calculatedPi << endl;
+	textBox.set_fill_color(Color::white);
+	attach(textBox);
+
+	ostringstream piMessage;
+	piMessage << "Found " << crossedCount << " crossed needles, and estimated pi is " << calculatedPi << "!";
+	piDisplay.set_label(piMessage.str());
+	attach(piDisplay);
 	redraw();
 }
 void Lines_window::rotate_pressed() {
 	int dropCount = dropCountInput.get_int();
 	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; }
-	needles.clear(); points1.clear(); points2.clear();
+	needles.clear(); points1.clear(); points2.clear(); detach(piDisplay); detach(textBox);
 
 	double x1, y1, x2, y2, theta = 0;
 	for (int a = 0; a < dropCount; ++a){
@@ -146,7 +156,20 @@ void Lines_window::rotate_pressed() {
 	redraw();
 }
 void Lines_window::unlist_pressed() {
+	int dropCount = dropCountInput.get_int();
+	int dropOrder = 0;
+	detach(piDisplay); detach(textBox);
+	ostringstream orderMessage;
+	for (int a = 0; a < needles.size(); ++a){
+		orderMessage << dropOrder;
+		Text* orderDisplay (points1[a], orderMessage.str());
+		orderDisplayVector.push_back(orderDisplay);
+		attach(orderDisplay[a]);
+	}
 
+
+
+	redraw();
 }
 
 int main() {
