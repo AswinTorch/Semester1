@@ -45,7 +45,6 @@ struct Lines_window : Graph_lib::Window {
 	    void quit();
 	    void drop();
 	};
-
 Lines_window::Lines_window(Point xy, int w, int h, const string& title)
     :Window(xy,w,h,title),
     quitButton(Point(x_max()-70,0), 70, 20, "Quit", cb_quit),
@@ -90,6 +89,7 @@ void Lines_window::cb_menu(Address, Address pw) { reference_to<Lines_window>(pw)
 //Functions
 void Lines_window::quit() { hide(); }
 void Lines_window::drop() {
+	//Drops the needles according to user input
 	int dropCount = dropCountInput.get_int();
 	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; delete points1[a]; delete points2[a]; delete midpoints[a];}
 	for (int b = 0; b < orderDisplayVector.size(); ++b) {detach(*orderDisplayVector[b]); delete orderDisplayVector[b];}
@@ -110,6 +110,7 @@ void Lines_window::drop() {
 	redraw();
 }
 void Lines_window::count_pressed() {
+	//Counts and colors the crossed needles red, approximates and displays pi.
 	for (int a = 0; a < orderDisplayVector.size(); ++a) { detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
 	detach(piDisplay); detach(textBox); orderDisplayVector.clear();
 	int dropCount = dropCountInput.get_int(), crossedCount = 0, mainX;
@@ -138,6 +139,7 @@ void Lines_window::count_pressed() {
 	redraw();
 }
 void Lines_window::rotate_pressed() {
+	//Rotates the needles on a random angle, resets color to black, removes order display
 	int dropCount = dropCountInput.get_int();
 	for (int a = 0; a < needles.size(); ++a){ detach(*needles[a]); delete needles[a]; delete points1[a]; delete points2[a]; }
 	for (int a = 0; a < orderDisplayVector.size(); ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a];}
@@ -157,6 +159,7 @@ void Lines_window::rotate_pressed() {
 	redraw();
 }
 void Lines_window::unlist_pressed() {
+	//(Un)Lists the order of the creation of needles next to their midpoints
 	for (int a = 0; a < orderDisplayVector.size(); ++a) {detach(*orderDisplayVector[a]); delete orderDisplayVector[a]; }
 	detach(piDisplay); detach(textBox);
 	if (orderDisplayVector.size() == 0){
